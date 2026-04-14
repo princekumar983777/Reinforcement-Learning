@@ -180,3 +180,30 @@
     height:88px;
   }
 }
+
+/* Mode selector buttons */
+.ttt-mode-btn {
+  padding:12px 24px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:var(--muted);
+  font-family:'Orbitron',sans-serif;
+  font-size:.7rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all .2s;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+}
+
+.ttt-mode-btn:hover {
+  border-color:var(--cyan);
+  color:var(--cyan);
+}
+
+.ttt-mode-btn.active {
+  background:rgba(0,240,255,0.15);
+  border-color:var(--cyan);
+  color:var(--cyan);
+  box-shadow:var(--glow-cyan);
+}

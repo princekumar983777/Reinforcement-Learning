@@ -19,6 +19,19 @@
   </div>
 
   <div class="game-container">
+    <!-- Game Mode Selector -->
+    <div style="margin-bottom: 30px; text-align: center;">
+      <div style="font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 15px;">Game Mode</div>
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button id="mode-pvp" class="ttt-mode-btn active" onclick="setSinglePlayerMode(false)" style="flex: 1;">
+          Player vs Player
+        </button>
+        <button id="mode-pva" class="ttt-mode-btn" onclick="setSinglePlayerMode(true)" style="flex: 1;">
+          vs AI (Learning)
+        </button>
+      </div>
+    </div>
+
     <div class="ttt-status-bar">
       <div class="ttt-score-box player-x" id="ttt-box-x">
         <div class="score-label">Player X</div>
