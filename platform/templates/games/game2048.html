@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}2048 - GAMEVERSE{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/game2048.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="game2048" class="page">
+  <div class="game-page-header">
+    <a href="/" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Back
+    </a>
+    <div class="page-logo" style="color:var(--pink)">2048</div>
+  </div>
+
+  <div class="game-container">
+    <div class="g2048-hud">
+      <div class="g2048-stat">
+        <div class="g2048-stat-label">Score</div>
+        <div class="g2048-stat-val" id="g2048-score">0</div>
+      </div>
+      <div class="g2048-stat">
+        <div class="g2048-stat-label">Best</div>
+        <div class="g2048-stat-val" id="g2048-best">0</div>
+      </div>
+    </div>
+    <div class="g2048-board" id="g2048-board"></div>
+    <button class="g2048-reset" onclick="g2048Init()">New Game</button>
+    <div class="g2048-hint">Use arrow keys or swipe to slide tiles</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/game2048.js') }}"></script>
+{% endblock %}

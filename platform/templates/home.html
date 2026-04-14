@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="home" class="page active">
+  <nav class="nav">
+    <div class="logo">GAME<span>VERSE</span></div>
+    <div class="nav-links">
+      <a href="/" style="cursor: pointer;">Arcade</a>
+      <a>Leaderboard</a>
+      <a>About</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="grid-bg">
+      <svg viewBox="0 0 1400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(0,240,255,1)" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="1400" height="400" fill="url(#grid)"/>
+      </svg>
+    </div>
+    <div class="hero-eyebrow">Arcade Collection</div>
+    <h1>
+      PLAY <span class="glow-cyan">BOLD</span>,<br>
+      WIN <span class="glow-pink">LOUDER</span>
+    </h1>
+    <p>Four iconic games, one electric arena. No downloads, no logins — just pure pixel glory.</p>
+    <button class="hero-btn" onclick="document.getElementById('games-section').scrollIntoView({behavior:'smooth'})">
+      ▶ Browse Games
+    </button>
+  </section>
+
+  <div style="padding:0 48px 16px" id="games-section">
+    <div class="section-title">// Available Games</div>
+  </div>
+
+  <div class="games-grid">
+    <div class="game-card" data-accent="cyan" onclick="window.location.href='/games/tictactoe'">
+      <div class="card-art" data-accent="cyan">
+        <span class="art-icon" style="color:var(--cyan)">✕○</span>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Strategy</div>
+        <div class="card-title">Tic Tac Toe</div>
+        <div class="card-desc">Classic X vs O — battle a friend or rack up your wins in the neon grid.</div>
+        <div class="card-footer">
+          <span class="badge">2 Players</span>
+          <button class="play-btn">Play Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card" data-accent="green" onclick="window.location.href='/games/snake'">
+      <div class="card-art" data-accent="green">
+        <span class="art-icon" style="color:var(--green)">🐍</span>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Arcade</div>
+        <div class="card-title">Snake</div>
+        <div class="card-desc">Guide the neon serpent through the grid. Eat, grow, survive — don't bite yourself.</div>
+        <div class="card-footer">
+          <span class="badge">1 Player</span>
+          <button class="play-btn">Play Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card" data-accent="purple" onclick="window.location.href='/games/memory'">
+      <div class="card-art" data-accent="purple">
+        <span class="art-icon" style="color:var(--purple)">🧠</span>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Puzzle</div>
+        <div class="card-title">Memory Match</div>
+        <div class="card-desc">Flip cards, find pairs, test your recall. How few moves can you finish in?</div>
+        <div class="card-footer">
+          <span class="badge">Solo</span>
+          <button class="play-btn">Play Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card" data-accent="pink" onclick="window.location.href='/games/2048'">
+      <div class="card-art" data-accent="pink">
+        <span class="art-icon" style="color:var(--pink); font-family:'Orbitron',sans-serif; font-size:2rem; font-weight:900;">2048</span>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Strategy</div>
+        <div class="card-title">2048</div>
+        <div class="card-desc">Slide and merge tiles to reach the legendary 2048 tile. Addictive and ruthless.</div>
+        <div class="card-footer">
+          <span class="badge">1 Player</span>
+          <button class="play-btn">Play Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

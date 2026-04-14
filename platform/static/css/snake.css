@@ -1,0 +1,148 @@
+#snake {
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(57,255,110,0.06) 0%, transparent 60%), var(--bg);
+}
+
+.snake-ui {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:24px;
+}
+
+.snake-hud {
+  display:flex;
+  gap:20px;
+  width:100%;
+  max-width:480px;
+  justify-content:space-between;
+}
+
+.snake-stat {
+  text-align:center;
+  padding:12px 24px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+  flex:1;
+}
+
+.snake-stat-label {
+  font-size:.6rem;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+
+.snake-stat-val {
+  font-family:'Orbitron',sans-serif;
+  font-size:1.4rem;
+  font-weight:900;
+  color:var(--green);
+}
+
+#snakeCanvas {
+  border:1px solid rgba(57,255,110,0.2);
+  box-shadow:0 0 40px rgba(57,255,110,0.07);
+  display:block;
+  image-rendering: pixelated;
+}
+
+.snake-overlay {
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:rgba(4,4,15,0.88);
+  backdrop-filter:blur(8px);
+  gap:20px;
+  pointer-events:none;
+}
+
+.snake-overlay.hidden {
+  display:none;
+}
+
+.snake-canvas-wrap {
+  position:relative;
+}
+
+.overlay-title {
+  font-family:'Orbitron',sans-serif;
+  font-size:1.2rem;
+  letter-spacing:4px;
+  color:var(--green);
+}
+
+.overlay-score {
+  font-family:'Orbitron',sans-serif;
+  font-size:.8rem;
+  color:var(--muted);
+  letter-spacing:3px;
+}
+
+.snake-btn {
+  padding:12px 36px;
+  border:1px solid var(--green);
+  background:rgba(57,255,110,0.1);
+  color:var(--green);
+  font-family:'Orbitron',sans-serif;
+  font-size:.7rem;
+  letter-spacing:3px;
+  cursor:pointer;
+  transition:all .2s;
+  pointer-events:all;
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+}
+
+.snake-btn:hover {
+  background:rgba(57,255,110,0.22);
+  box-shadow:var(--glow-green);
+}
+
+.snake-controls {
+  display:grid;
+  grid-template-columns:repeat(3,48px);
+  grid-template-rows:repeat(2,48px);
+  gap:6px;
+  margin-top:8px;
+}
+
+.snake-controls button {
+  width:48px;
+  height:48px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:var(--text);
+  font-size:1.1rem;
+  cursor:pointer;
+  transition:all .2s;
+  border-radius:2px;
+}
+
+.snake-controls button:hover {
+  border-color:var(--green);
+  background:rgba(57,255,110,0.1);
+  box-shadow:var(--glow-green);
+}
+
+.ctrl-up {
+  grid-column:2;
+}
+
+.ctrl-left {
+  grid-column:1;
+  grid-row:2;
+}
+
+.ctrl-down {
+  grid-column:2;
+  grid-row:2;
+}
+
+.ctrl-right {
+  grid-column:3;
+  grid-row:2;
+}

@@ -1,0 +1,112 @@
+#memory {
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(192,96,255,0.06) 0%, transparent 60%), var(--bg);
+}
+
+.memory-hud {
+  display:flex;
+  gap:20px;
+  margin-bottom:32px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.memory-stat {
+  text-align:center;
+  padding:12px 28px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+}
+
+.memory-stat-label {
+  font-size:.6rem;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+
+.memory-stat-val {
+  font-family:'Orbitron',sans-serif;
+  font-size:1.3rem;
+  font-weight:900;
+  color:var(--purple);
+}
+
+.memory-grid {
+  display:grid;
+  grid-template-columns:repeat(4,90px);
+  gap:12px;
+  margin-bottom:28px;
+}
+
+.mem-card {
+  width:90px;
+  height:90px;
+  cursor:pointer;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform .4s ease;
+}
+
+.mem-card.flipped,.mem-card.matched {
+  transform:rotateY(180deg);
+}
+
+.mem-card-face {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  backface-visibility:hidden;
+  border:1px solid var(--border);
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+  font-size:2rem;
+}
+
+.mem-card-back {
+  background:var(--panel);
+  background-image: repeating-linear-gradient(45deg, rgba(192,96,255,0.03) 0, rgba(192,96,255,0.03) 1px, transparent 0, transparent 50%);
+  background-size: 10px 10px;
+}
+
+.mem-card-front {
+  background: rgba(192,96,255,0.07);
+  transform:rotateY(180deg);
+  border-color:rgba(192,96,255,0.3);
+}
+
+.mem-card.matched .mem-card-front {
+  background:rgba(57,255,110,0.08);
+  border-color:var(--green);
+  box-shadow:var(--glow-green);
+}
+
+.memory-reset {
+  padding:12px 40px;
+  border:1px solid var(--purple);
+  background:rgba(192,96,255,0.07);
+  color:var(--purple);
+  font-family:'Orbitron',sans-serif;
+  font-size:.7rem;
+  letter-spacing:3px;
+  cursor:pointer;
+  transition:all .2s;
+  clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);
+}
+
+.memory-reset:hover {
+  background:rgba(192,96,255,0.18);
+  box-shadow:var(--glow-purple);
+}
+
+@media (max-width:600px) {
+  .memory-grid {
+    grid-template-columns:repeat(4,70px);
+  }
+  .mem-card,.mem-card-face {
+    width:70px;
+    height:70px;
+  }
+}

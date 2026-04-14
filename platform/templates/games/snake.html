@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Snake - GAMEVERSE{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/snake.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="snake" class="page">
+  <div class="game-page-header">
+    <a href="/" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Back
+    </a>
+    <div class="page-logo" style="color:var(--green)">SNAKE</div>
+  </div>
+
+  <div class="game-container">
+    <div class="snake-ui">
+      <div class="snake-hud">
+        <div class="snake-stat">
+          <div class="snake-stat-label">Score</div>
+          <div class="snake-stat-val" id="snake-score">0</div>
+        </div>
+        <div class="snake-stat">
+          <div class="snake-stat-label">Best</div>
+          <div class="snake-stat-val" id="snake-best">0</div>
+        </div>
+        <div class="snake-stat">
+          <div class="snake-stat-label">Level</div>
+          <div class="snake-stat-val" id="snake-level">1</div>
+        </div>
+      </div>
+
+      <div class="snake-canvas-wrap">
+        <canvas id="snakeCanvas" width="480" height="480"></canvas>
+        <div class="snake-overlay" id="snake-overlay">
+          <div class="overlay-title" id="snake-overlay-title">SNAKE</div>
+          <div class="overlay-score" id="snake-overlay-score">Use arrow keys or buttons below</div>
+          <button class="snake-btn" id="snake-start-btn" onclick="snakeStart()">START GAME</button>
+        </div>
+      </div>
+
+      <div class="snake-controls">
+        <button class="ctrl-up" onclick="snakeDir(0,-1)">▲</button>
+        <button class="ctrl-left" onclick="snakeDir(-1,0)">◀</button>
+        <button class="ctrl-down" onclick="snakeDir(0,1)">▼</button>
+        <button class="ctrl-right" onclick="snakeDir(1,0)">▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/snake.js') }}"></script>
+{% endblock %}

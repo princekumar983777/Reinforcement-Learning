@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Tic Tac Toe - GAMEVERSE{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tictactoe.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="tictactoe" class="page">
+  <div class="game-page-header">
+    <a href="/" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Back
+    </a>
+    <div class="page-logo" style="color:var(--cyan)">TIC TAC TOE</div>
+  </div>
+
+  <div class="game-container">
+    <div class="ttt-status-bar">
+      <div class="ttt-score-box player-x" id="ttt-box-x">
+        <div class="score-label">Player X</div>
+        <div class="score-val" id="ttt-score-x">0</div>
+      </div>
+      <div class="ttt-score-box draws">
+        <div class="score-label">Draws</div>
+        <div class="score-val" id="ttt-score-d">0</div>
+      </div>
+      <div class="ttt-score-box player-o" id="ttt-box-o">
+        <div class="score-label">Player O</div>
+        <div class="score-val" id="ttt-score-o">0</div>
+      </div>
+    </div>
+
+    <div class="ttt-message turn-x" id="ttt-message">X's Turn</div>
+
+    <div class="ttt-board" id="ttt-board">
+      <div class="ttt-cell" onclick="tttClick(0)"></div>
+      <div class="ttt-cell" onclick="tttClick(1)"></div>
+      <div class="ttt-cell" onclick="tttClick(2)"></div>
+      <div class="ttt-cell" onclick="tttClick(3)"></div>
+      <div class="ttt-cell" onclick="tttClick(4)"></div>
+      <div class="ttt-cell" onclick="tttClick(5)"></div>
+      <div class="ttt-cell" onclick="tttClick(6)"></div>
+      <div class="ttt-cell" onclick="tttClick(7)"></div>
+      <div class="ttt-cell" onclick="tttClick(8)"></div>
+    </div>
+
+    <button class="ttt-reset" onclick="tttReset()">New Round</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/tictactoe.js') }}"></script>
+{% endblock %}

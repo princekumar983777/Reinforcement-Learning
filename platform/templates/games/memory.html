@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Memory Match - GAMEVERSE{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/memory.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="memory" class="page">
+  <div class="game-page-header">
+    <a href="/" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Back
+    </a>
+    <div class="page-logo" style="color:var(--purple)">MEMORY MATCH</div>
+  </div>
+
+  <div class="game-container">
+    <div class="memory-hud">
+      <div class="memory-stat">
+        <div class="memory-stat-label">Moves</div>
+        <div class="memory-stat-val" id="mem-moves">0</div>
+      </div>
+      <div class="memory-stat">
+        <div class="memory-stat-label">Pairs</div>
+        <div class="memory-stat-val" id="mem-pairs">0/8</div>
+      </div>
+      <div class="memory-stat">
+        <div class="memory-stat-label">Time</div>
+        <div class="memory-stat-val" id="mem-time">0s</div>
+      </div>
+    </div>
+    <div class="memory-grid" id="memory-grid"></div>
+    <button class="memory-reset" onclick="memoryInit()">New Game</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/memory.js') }}"></script>
+{% endblock %}
