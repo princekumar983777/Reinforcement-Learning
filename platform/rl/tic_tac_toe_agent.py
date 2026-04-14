@@ -6,6 +6,11 @@ Learns to play better Tic Tac Toe by updating Q-values after each game.
 import json
 import random
 import os
+import redis
+import dotenv
+
+dotenv.load_dotenv()
+
 
 Q_TABLE_FILE = 'platform/rl/q_table.json'
 
@@ -25,8 +30,15 @@ class TicTacToeAgent:
         self.q_table = {}
         self.load_q_table()
         self.game_history = []  # Track moves during current game
-    
-    # ─────────────────────────────────────────
+
+        self.r = redis.Redis(
+            host=os.getenv("R_HOST"),
+            port=os.getenv("R_PORT"),
+            decode_responses=True,
+            username="default",
+            password=os.getenv("R_PASSWORD"),
+        )
+        # ─────────────────────────────────────────
     # CORE GAME FUNCTIONS
     # ─────────────────────────────────────────
     
