@@ -1,0 +1,68 @@
+{
+  "id": 1,
+  "title": "AI Learning Games Platform",
+  "description": "An interactive gaming platform where users play classic games against AI opponents that continuously learn and improve from every game. The AI agents use Q-learning algorithms to adapt their strategies based on user gameplay patterns, creating personalized and progressively challenging experiences.",
+  "techStack": [
+    "Python",
+    "Flask",
+    "Redis",
+    "Q-Learning",
+    "JavaScript",
+    "HTML5",
+    "CSS3",
+    "WebSockets"
+  ],
+  "features": [
+    "Real-time AI learning from user moves",
+    "Multiple classic games (Tic-Tac-Toe, Snake, 2048, Memory)",
+    "Persistent AI memory using Redis database",
+    "Adaptive difficulty based on user skill level",
+    "Game statistics and AI performance analytics",
+    "Cross-platform web interface"
+  ],
+  "aiCapabilities": [
+    "Q-learning reinforcement learning",
+    "Epsilon-greedy exploration strategy",
+    "State-action value function optimization",
+    "Experience replay and continuous improvement",
+    "Multi-game AI specialization"
+  ],
+  "github": "https://github.com",
+  "live": "http://localhost:5000",
+  "image": "ai-games-platform",
+  "learningMechanism": {
+    "algorithm": "Q-Learning",
+    "storage": "Redis Hash Tables",
+    "backup": "JSON files",
+    "updateFrequency": "Real-time after each game",
+    "explorationRate": "Configurable epsilon (default 0.2)",
+    "discountFactor": "0.95 for future reward valuation"
+  },
+  "games": [
+    {
+      "name": "Tic-Tac-Toe",
+      "aiStatus": "Fully Implemented",
+      "learning": "Active Q-learning",
+      "difficulty": "Adaptive"
+    },
+    {
+      "name": "Snake",
+      "aiStatus": "Frontend Ready",
+      "learning": "Planned",
+      "difficulty": "Static"
+    },
+    {
+      "name": "2048",
+      "aiStatus": "Frontend Ready",
+      "learning": "Planned",
+      "difficulty": "Static"
+    },
+    {
+      "name": "Memory Match",
+      "aiStatus": "Frontend Ready",
+      "learning": "Planned",
+      "difficulty": "Static"
+    }
+  ]
+}</content>
+<parameter name="filePath">e:\Projects\Reinforcement-Learning\platform_info.json

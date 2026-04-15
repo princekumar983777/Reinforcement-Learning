@@ -1,6 +1,6 @@
 /* Tic Tac Toe Game with Q-Learning AI */
 let tttBoard = Array(9).fill(null);
-let tttTurn = 'X';
+let tttTurn = RandomChoice('X' , 'O');
 let tttOver = false;
 let tttScores = { X: 0, O: 0, D: 0 };
 let tttSinglePlayer = false;  // true = vs AI, false = vs human
@@ -20,6 +20,9 @@ const tttWins = [
 // ─────────────────────────────────────────
 // MODE MANAGEMENT
 // ─────────────────────────────────────────
+function RandomChoice(a , b){
+  return Math.random() > 0.5 ? 'X' : 'O';
+}
 
 function setSinglePlayerMode(isAI) {
   console.log('[TTT] Switching mode to:', isAI ? 'AI' : 'PvP');
@@ -187,7 +190,7 @@ function tttCheckWin() {
 
 function tttReset() {
   tttBoard = Array(9).fill(null);
-  tttTurn = 'X';
+  tttTurn = RandomChoice('X' , 'O');
   tttOver = false;
   tttAIThinking = false;
   
@@ -198,9 +201,22 @@ function tttReset() {
   });
   
   const msg = document.getElementById('ttt-message');
-  msg.textContent = "X's Turn";
-  msg.className = 'ttt-message turn-x';
+  if (tttTurn === 'X') {
+    msg.textContent = "X's Turn";
+    msg.className = 'ttt-message turn-x';
+  } else if (tttSinglePlayer) {
+    msg.textContent = "AI's Turn";
+    msg.className = 'ttt-message turn-o';
+  } else {
+    msg.textContent = "O's Turn";
+    msg.className = 'ttt-message turn-o';
+  }
   updateTTTBoxes();
+  
+  // If AI starts in single player mode, make AI move
+  if (tttSinglePlayer && tttTurn === 'O') {
+    setTimeout(() => getAIMove(), 500);
+  }
 }
 
 // Initialize on page load

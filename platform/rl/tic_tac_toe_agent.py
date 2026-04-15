@@ -114,23 +114,23 @@ class TicTacToeAgent:
         state = self.board_to_state(board)
         
         # If random forces exploration
-        if random.random() < self.epsilon:
-            move = random.choice(available_moves)
-            # print("Chosed Random moves : " , move) #--------------------------------------------------
+        # if random.random() < self.epsilon:
+        #     move = random.choice(available_moves)
+        #     # print("Chosed Random moves : " , move) #--------------------------------------------------
             
-        else:
-            # Get Q-values from Redis for this state
-            q_values_dict = self.get_q_values(state)
-            # print(q_values_dict) #----------------------------------------------------
-            
-            # Get Q-value for each available move (default 0.0)
-            q_values = [q_values_dict.get(str(move), 0.0) for move in available_moves]
-            max_q = max(q_values)
-            
-            # Pick a random move tied for best (helps with ties)
-            best_moves = [move for move, q in zip(available_moves, q_values) if q == max_q]
-            move = random.choice(best_moves)
-            # print("Best Move : " , move) #------------------------------------------------------------
+        # else:
+        # Get Q-values from Redis for this state
+        q_values_dict = self.get_q_values(state)
+        # print(q_values_dict) #----------------------------------------------------
+        
+        # Get Q-value for each available move (default 0.0)
+        q_values = [q_values_dict.get(str(move), 0.0) for move in available_moves]
+        max_q = max(q_values)
+        
+        # Pick a random move tied for best (helps with ties)
+        best_moves = [move for move, q in zip(available_moves, q_values) if q == max_q]
+        move = random.choice(best_moves)
+        # print("Best Move : " , move) #------------------------------------------------------------
         
         return move
     
