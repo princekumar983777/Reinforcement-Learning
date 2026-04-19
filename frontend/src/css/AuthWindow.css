@@ -1,0 +1,122 @@
+/* src/components/AuthModal.css */
+
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.auth-modal {
+  position: relative;
+  width: 420px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #050816;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.2);
+}
+
+/* SLIDER */
+.auth-slider {
+  display: flex;
+  width: 840px;
+  transition: transform 0.5s ease;
+}
+
+.auth-slider.slide {
+  transform: translateX(-420px);
+}
+
+/* FORMS */
+.auth-form {
+  width: 420px;
+  padding: 30px;
+  color: white;
+}
+
+/* TITLE */
+.title {
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.title.cyan {
+  color: #00ffff;
+  text-shadow: 0 0 10px #00ffff;
+}
+
+.title.pink {
+  color: #ff2e88;
+  text-shadow: 0 0 10px #ff2e88;
+}
+
+/* INPUTS */
+input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  color: white;
+  border-radius: 8px;
+  outline: none;
+}
+
+input:focus {
+  border-color: #00ffff;
+  box-shadow: 0 0 8px #00ffff;
+}
+
+/* BUTTONS */
+.btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn.cyan {
+  background: linear-gradient(90deg, #00ffff, #007bff);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+}
+
+.btn.pink {
+  background: linear-gradient(90deg, #ff2e88, #a855f7);
+  box-shadow: 0 0 15px rgba(255, 0, 150, 0.5);
+}
+
+/* TEXT */
+p {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+span {
+  cursor: pointer;
+  color: #00ffff;
+}
+
+/* CLOSE BUTTON */
+.close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: white;
+}

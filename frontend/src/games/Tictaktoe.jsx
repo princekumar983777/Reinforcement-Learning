@@ -21,8 +21,10 @@
  *    same output). Keep game logic pure & testable.
  */
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import GamePageHeader from '../components/GamePageHeader'
+import tictactoeAPI from '../services/tictactoeAPI.js'
+import '../css/TicTacToe.css'
 
 // ── CONSTANTS (never change, so outside component) ──
 const WIN_COMBOS = [
@@ -55,14 +57,72 @@ export default function TicTacToe({ onNavigate }) {
   const [turn,     setTurn]    = useState('X')       // whose turn
   const [scores,   setScores]  = useState({ X: 0, O: 0, D: 0 })
   const [gameOver, setGameOver] = useState(false)
-  const [message,  setMessage] = useState({ text: "X's Turn", cls: 'turn-x' })
+  const [message,  setMessage] = useState({ text: "Welcome! Select who goes first.", cls: 'turn-x' })
+  const [loading, setLoading] = useState(false)
+  const [gameStarted, setGameStarted] = useState(false)
+  const [stats, setStats] = useState({ states_learned: 0 })
+  const [showStats, setShowStats] = useState(false)
+  const [isAiTurn, setIsAiTurn] = useState(false)
 
   // Derived: which cells are in the winning combo (for highlighting)
   const winCombo = checkWinner(board)
 
-  const handleCellClick = (index) => {
-    // Guard: ignore clicks on taken cells or when game is over
-    if (gameOver || board[index]) return
+  const startNewGame = async (userFirst = true) => {
+    try {
+      setLoading(true)
+      const response = await tictactoeAPI.startGame()
+      
+      setGameStarted(true)
+      setBoard(Array(9).fill(null))
+      setGameOver(false)
+      
+      if (userFirst) {
+        setTurn('X')
+        setMessage({ text: "Your turn (X)", cls: 'turn-x' })
+        setIsAiTurn(false)
+      } else {
+        setTurn('O')
+        setMessage({ text: "AI's turn (O)", cls: 'turn-o' })
+        setIsAiTurn(true)
+        // AI makes first move
+        setTimeout(() => makeAiMove(Array(9).fill(null)), 500)
+      }
+      
+      await loadStats()
+    } catch (error) {
+      setMessage({ text: `Error: ${error.message}`, cls: 'error' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const makeAiMove = async (currentBoard) => {
+    if (gameOver) return
+    
+    try {
+      setLoading(true)
+      const response = await tictactoeAPI.makeMove(currentBoard)
+      
+      const newBoard = response.board
+      setBoard(newBoard)
+      
+      if (response.game_over) {
+        handleGameEnd(response)
+      } else {
+        setTurn('X')
+        setMessage({ text: "Your turn (X)", cls: 'turn-x' })
+        setIsAiTurn(false)
+      }
+    } catch (error) {
+      setMessage({ text: `AI Error: ${error.message}`, cls: 'error' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCellClick = async (index) => {
+    // Guard: ignore clicks on taken cells, when game is over, during AI turn, or before game starts
+    if (gameOver || board[index] || isAiTurn || !gameStarted || loading) return
 
     /*
      * LEARNING: Immutable state update
@@ -71,48 +131,93 @@ export default function TicTacToe({ onNavigate }) {
      * then update the copy, then call setBoard with the copy.
      */
     const newBoard = [...board]
-    newBoard[index] = turn
+    newBoard[index] = 'X' // Human is always X
 
     const winner = checkWinner(newBoard)
 
     if (winner) {
-      // Someone won
+      // Human won
       setBoard(newBoard)
       setGameOver(true)
       setMessage({
-        text: `${turn} WINS!`,
-        cls:  `win-${turn.toLowerCase()}`,
+        text: "You WIN!",
+        cls:  'win-x',
       })
-      /*
-       * LEARNING: Functional setState
-       * When the new state depends on the old state,
-       * pass a function to the setter. This guarantees
-       * you're reading the latest state value.
-       */
-      setScores(prev => ({ ...prev, [turn]: prev[turn] + 1 }))
+      setScores(prev => ({ ...prev, X: prev.X + 1 }))
+      await endGameWithResult('win')
     } else if (newBoard.every(Boolean)) {
       // Draw
       setBoard(newBoard)
       setGameOver(true)
       setMessage({ text: 'DRAW!', cls: 'draw' })
       setScores(prev => ({ ...prev, D: prev.D + 1 }))
+      await endGameWithResult('draw')
     } else {
-      // Continue — switch turn
-      const nextTurn = turn === 'X' ? 'O' : 'X'
+      // Continue — AI's turn
       setBoard(newBoard)
-      setTurn(nextTurn)
-      setMessage({
-        text: `${nextTurn}'s Turn`,
-        cls:  `turn-${nextTurn.toLowerCase()}`,
-      })
+      setTurn('O')
+      setMessage({ text: "AI's turn (O)", cls: 'turn-o' })
+      setIsAiTurn(true)
+      // Make AI move after a short delay
+      setTimeout(() => makeAiMove(newBoard), 500)
+    }
+  }
+
+  const handleGameEnd = (response) => {
+    setGameOver(true)
+    
+    if (response.result === 'ai_win') {
+      setMessage({ text: "AI WINS!", cls: 'win-o' })
+      setScores(prev => ({ ...prev, O: prev.O + 1 }))
+    } else if (response.result === 'draw') {
+      setMessage({ text: 'DRAW!', cls: 'draw' })
+      setScores(prev => ({ ...prev, D: prev.D + 1 }))
+    }
+  }
+
+  const endGameWithResult = async (result) => {
+    try {
+      await tictactoeAPI.endGame(result)
+      await loadStats()
+    } catch (error) {
+      console.error('Failed to end game:', error)
+    }
+  }
+
+  const loadStats = async () => {
+    try {
+      const response = await tictactoeAPI.getStats()
+      setStats(response)
+    } catch (error) {
+      console.error('Failed to load stats:', error)
+    }
+  }
+
+  const resetQTable = async () => {
+    if (!confirm('Are you sure you want to reset the AI learning? This cannot be undone.')) {
+      return
+    }
+    
+    try {
+      setLoading(true)
+      await tictactoeAPI.resetQTable()
+      setMessage({ text: 'AI learning reset successfully!', cls: 'success' })
+      await loadStats()
+    } catch (error) {
+      setMessage({ text: `Reset Error: ${error.message}`, cls: 'error' })
+    } finally {
+      setLoading(false)
     }
   }
 
   const resetRound = () => {
+    tictactoeAPI.clearSession()
+    setGameStarted(false)
     setBoard(makeBoard())
     setTurn('X')
     setGameOver(false)
-    setMessage({ text: "X's Turn", cls: 'turn-x' })
+    setMessage({ text: "Welcome! Select who goes first.", cls: 'turn-x' })
+    setIsAiTurn(false)
   }
 
   return (
@@ -125,7 +230,7 @@ export default function TicTacToe({ onNavigate }) {
           <div
             className={`ttt-score-box player-x ${turn === 'X' && !gameOver ? 'active-player' : ''}`}
           >
-            <div className="score-label">Player X</div>
+            <div className="score-label">You (X)</div>
             <div className="score-val">{scores.X}</div>
           </div>
 
@@ -137,42 +242,100 @@ export default function TicTacToe({ onNavigate }) {
           <div
             className={`ttt-score-box player-o ${turn === 'O' && !gameOver ? 'active-player' : ''}`}
           >
-            <div className="score-label">Player O</div>
+            <div className="score-label">AI (O)</div>
             <div className="score-val">{scores.O}</div>
           </div>
         </div>
 
         {/* ── STATUS MESSAGE ── */}
-        <div className={`ttt-message ${message.cls}`}>{message.text}</div>
-
-        {/* ── BOARD ── */}
-        <div className="ttt-board">
-          {/*
-           * LEARNING: Array.from() to generate a list
-           * board is an array of 9 items. We map each
-           * to a cell element. Index is used for the key.
-           */}
-          {board.map((cell, i) => (
-            <div
-              key={i}
-              className={[
-                'ttt-cell',
-                cell ? cell.toLowerCase() : '',   // 'x' or 'o' for styling
-                cell ? 'taken' : '',
-                winCombo?.includes(i) ? 'win-cell' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              onClick={() => handleCellClick(i)}
-            >
-              {cell}
-            </div>
-          ))}
+        <div className={`ttt-message ${message.cls}`}>
+          {loading && <span className="loading-spinner">⏳ </span>}
+          {message.text}
         </div>
 
-        <button className="ttt-reset btn-cyan" onClick={resetRound}>
-          New Round
-        </button>
+        {/* ── GAME START SELECTION ── */}
+        {!gameStarted && (
+          <div className="game-start-selection">
+            <p className="selection-prompt">Who should go first?</p>
+            <div className="selection-buttons">
+              <button 
+                className="btn-cyan" 
+                onClick={() => startNewGame(true)}
+                disabled={loading}
+              >
+                You First (X)
+              </button>
+              <button 
+                className="btn-purple" 
+                onClick={() => startNewGame(false)}
+                disabled={loading}
+              >
+                AI First (O)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── BOARD ── */}
+        {gameStarted && (
+          <div className="ttt-board">
+            {/*
+             * LEARNING: Array.from() to generate a list
+             * board is an array of 9 items. We map each
+             * to a cell element. Index is used for the key.
+             */}
+            {board.map((cell, i) => (
+              <div
+                key={i}
+                className={[
+                  'ttt-cell',
+                  cell ? cell.toLowerCase() : '',   // 'x' or 'o' for styling
+                  cell ? 'taken' : '',
+                  winCombo?.includes(i) ? 'win-cell' : '',
+                  loading || isAiTurn ? 'disabled' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                onClick={() => handleCellClick(i)}
+              >
+                {cell}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── GAME CONTROLS ── */}
+        {gameStarted && (
+          <div className="game-controls">
+            <button className="ttt-reset btn-cyan" onClick={resetRound}>
+              New Game
+            </button>
+            
+            <button 
+              className="btn-stats" 
+              onClick={() => setShowStats(!showStats)}
+            >
+              {showStats ? 'Hide' : 'Show'} Stats
+            </button>
+            
+            <button 
+              className="btn-reset-ai btn-red" 
+              onClick={resetQTable}
+              disabled={loading}
+            >
+              Reset AI
+            </button>
+          </div>
+        )}
+
+        {/* ── STATS DISPLAY ── */}
+        {showStats && (
+          <div className="stats-panel">
+            <h3>AI Learning Stats</h3>
+            <p>States Learned: <strong>{stats.states_learned}</strong></p>
+            <p>User ID: <strong>{stats.user_id || 'Guest'}</strong></p>
+          </div>
+        )}
       </div>
     </div>
   )

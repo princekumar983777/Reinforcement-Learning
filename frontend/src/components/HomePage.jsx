@@ -1,33 +1,9 @@
-/*
- * ══════════════════════════════════════════════════
- *  HomePage.jsx  —  STEP 3: The Home Screen
- * ══════════════════════════════════════════════════
- *
- * LEARNING CONCEPT: Component Composition
- * -------------------------------------------------
- * HomePage is made of smaller components:
- *   - <nav> for the top bar
- *   - Hero section (JSX directly here)
- *   - <GameCard /> instances (imported component)
- *
- * We also define GAMES_DATA as a constant array
- * and use .map() to render all cards — rather than
- * writing each card by hand.
- *
- * LEARNING CONCEPT: Array.map() in JSX
- * -------------------------------------------------
- * .map() transforms each item in an array into JSX.
- * React needs a unique `key` prop on mapped elements
- * so it can efficiently update the DOM.
- */
 
 import GameCard from './GameCard'
+import AuthWindow from './AuthWindow'
+import { useState } from 'react'
+import { useAuth } from "../context/AuthContext";
 
-/*
- * Data lives outside the component — it never changes,
- * so there's no reason to put it inside.
- * Keeping static data separate keeps components clean.
- */
 const GAMES_DATA = [
   {
     id:          'tictactoe',
@@ -73,8 +49,21 @@ const GAMES_DATA = [
  * Same as writing: function HomePage(props) { props.onNavigate }
  */
 export default function HomePage({ onNavigate }) {
+    const [ShowAuth , setShowAuth] = useState(false);
+    const { user, login, signup, logout, loading , fetchUser } = useAuth();
+    fetch();
+
   const scrollToGames = () => {
     document.getElementById('games-section')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ fontSize: '2rem' }}>⚡</div>
+        <p style={{ color: 'var(--muted)', letterSpacing: '2px' }}>LOADING...</p>
+      </div>
+    );
   }
 
   return (
@@ -86,9 +75,39 @@ export default function HomePage({ onNavigate }) {
           <a>Arcade</a>
           <a>Leaderboard</a>
           <a>About</a>
-          <a>Login</a>
+          {/* <a
+            classname = "cursor-pointer"
+            onClick={()=>setShowAuth(true)}
+            >
+                Login
+            </a> */}
+          {user ? (
+            <div className="user-menu">
+              <div className="avatar">
+                {user.username[0].toUpperCase()}
+              </div>
+
+              <div className="dropdown">
+                <p>{user.username}</p>
+                <button onClick={logout}>Logout</button>
+              </div>
+            </div>
+          ) : (
+            <a
+              className="cursor-pointer"
+              onClick={() => setShowAuth(true)}
+            >
+              Login
+            </a>
+          )}
         </div>
       </nav>
+
+      {/* ── AuthWindow── */}
+      <AuthWindow
+        isOpen={ShowAuth}
+        onClose={ () => setShowAuth(false)}
+        />
 
       {/* ── HERO ── */}
       <section className="hero">
