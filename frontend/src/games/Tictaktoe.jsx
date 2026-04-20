@@ -67,6 +67,51 @@ export default function TicTacToe({ onNavigate }) {
   // Derived: which cells are in the winning combo (for highlighting)
   const winCombo = checkWinner(board)
 
+  // Handle page unload - cleanup user sessions
+  useEffect(() => {
+    const handlePageUnload = () => {
+      try {
+        // Use navigator.sendBeacon for reliable cleanup during page unload
+        // Note: sendBeacon doesn't support custom headers, so we'll use a simple approach
+        const cleanupUrl = `${tictactoeAPI.baseURL}/tictactoe/cleanup/user`
+        const data = new Blob([JSON.stringify({})], {
+          type: 'application/json'
+        })
+        
+        // sendBeacon automatically includes credentials for same-origin requests
+        navigator.sendBeacon(cleanupUrl, data)
+      } catch (error) {
+        console.error('Failed to cleanup sessions on page unload:', error)
+      }
+    }
+
+    const handleBeforeUnload = (event) => {
+      // Call cleanup immediately
+      handlePageUnload()
+      
+      // For modern browsers, we can also try async cleanup
+      if (event.returnValue === undefined) {
+        // Modern browser - we can try async cleanup
+        tictactoeAPI.cleanupUserSessions().catch(console.error)
+      }
+    }
+
+    // Add event listeners
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    window.addEventListener('unload', handlePageUnload)
+
+    // Cleanup event listeners on component unmount
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      window.removeEventListener('unload', handlePageUnload)
+      
+      // Also cleanup when component unmounts (user navigates away)
+      if (gameStarted && tictactoeAPI.hasActiveSession()) {
+        tictactoeAPI.cleanupUserSessions().catch(console.error)
+      }
+    }
+  }, [gameStarted])
+
   const startNewGame = async (userFirst = true) => {
     try {
       setLoading(true)
@@ -213,7 +258,7 @@ export default function TicTacToe({ onNavigate }) {
   const resetRound = () => {
     tictactoeAPI.clearSession()
     setGameStarted(false)
-    setBoard(makeBoard())
+    setBoard(Array(9).fill(null))
     setTurn('X')
     setGameOver(false)
     setMessage({ text: "Welcome! Select who goes first.", cls: 'turn-x' })

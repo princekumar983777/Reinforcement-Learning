@@ -116,6 +116,19 @@ class TicTacToeAPI {
     }
   }
 
+  async cleanupUserSessions() {
+    try {
+      const response = await this.request('/cleanup/user', {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      return response;
+    } catch (error) {
+      console.error('Failed to cleanup user sessions:', error);
+      throw error;
+    }
+  }
+
   clearSession() {
     this.sessionId = null;
   }
