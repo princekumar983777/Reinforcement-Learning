@@ -25,7 +25,11 @@ app = FastAPI(title="Game Verse", lifespan=lifespan)
 # Add middleware - CORS must be first
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # your frontend
+    allow_origins=[
+        "http://localhost:5173",  # Development frontend
+        "https://gameversefrontend.vercel.app"
+        "https://vercel.com/prince-kuamrs-projects/gameversefrontend/8cNtxwaQwR9odtmNFgVnfnf5N53C"  # Production frontend
+    ],
     allow_credentials=True,  # Allow cookies
     allow_methods=["*"],
     allow_headers=["*"],
