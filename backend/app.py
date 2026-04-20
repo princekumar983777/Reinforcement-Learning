@@ -27,8 +27,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",  # Development frontend
-        "https://gameversefrontend.vercel.app"
-        "https://vercel.com/prince-kuamrs-projects/gameversefrontend/8cNtxwaQwR9odtmNFgVnfnf5N53C"  # Production frontend
+        "https://gameversefrontend.vercel.app",  # Production frontend
+        "https://your-backend.vercel.app"  # Backend self-reference (if needed)
     ],
     allow_credentials=True,  # Allow cookies
     allow_methods=["*"],
