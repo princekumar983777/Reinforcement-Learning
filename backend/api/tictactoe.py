@@ -33,7 +33,7 @@ Human = "X"   AI = "O"
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, field_validator
 
@@ -45,7 +45,7 @@ from db.tictactoe import (
     reset_user_qtable,
     upsert_q_values,
 )
-from db.session import get_database
+from db.session import get_database, USERS_COLLECTION
 from api.helper.helper import (
     AI_PLAYER,
     HUMAN_PLAYER,
@@ -61,7 +61,11 @@ from api.helper.helper import (
     get_session,
     human_to_ai_result,
     push_history,
-    get_sessions
+    get_sessions,
+    cleanup_expired_sessions,
+    get_session_count,
+    get_user_active_sessions,
+    cleanup_user_sessions
 )
 
 router = APIRouter(prefix="/tictactoe", tags=["Tic Tac Toe"])
@@ -82,18 +86,27 @@ async def get_db(request: Request) -> AsyncIOMotorDatabase:
     return await get_database()
 
 
-def resolve_user_id(request: Request) -> str:
+async def resolve_user_id(request: Request) -> str:
     user = getattr(request.state, "user", None)
-    if user is not None:
-        # Handle different user object structures
-        if "id" in user:
-            return str(user["id"])
-        elif "sub" in user:  # JWT token uses 'sub' for user ID
-            return str(user["sub"])
-        elif "_id" in user:  # MongoDB uses '_id'
-            return str(user["_id"])
-        elif "email" in user:  # Fallback to email
-            return str(user["email"])
+    if user is not None and "error" not in user:
+        return str(user["username"])
+        # # If we have the user ID directly, use it
+        # if "id" in user:
+        #     return str(user["id"])
+        # elif "_id" in user:  # MongoDB uses '_id'
+        #     return str(user["_id"])
+        # elif "sub" in user:  # JWT token uses 'sub' for email, need to get user ID from database
+        #     try:
+        #         db = await get_db(request)
+        #         user_doc = await db[USERS_COLLECTION].find_one({"email": user["sub"]})
+        #         if user_doc:
+        #             return str(user_doc["_id"])
+        #         else:
+        #             return str(user["sub"])  # Fallback to email if user not found
+        #     except Exception:
+        #         return str(user["sub"])  # Fallback to email if database error
+        # elif "email" in user:  # Fallback to email
+        #     return str(user["email"])
     return GLOBAL_USER
 
 
@@ -104,6 +117,7 @@ def resolve_user_id(request: Request) -> str:
 class StartResponse(BaseModel):
     session_id: str
     board: list
+    turn: str  # "X" for human starts, "O" for AI starts
     message: str
 
 
@@ -163,20 +177,31 @@ async def tictactoe_root(request : Request):
 # ─────────────────────────────────────────────────────────────────────────────
 
 @router.post("/start", response_model=StartResponse)
-async def start_game(request: Request):
+async def start_game(request: Request, first_player: str = Query(default="X")):
     """
     Create a new game session.
     Authenticated users train their own bot; guests use the global bot.
+    
+    Query parameter:
+    - first_player: "X" (human starts) or "O" (AI starts)
     """
-    user_id    = resolve_user_id(request)
+    user_id    = await resolve_user_id(request)
     print("User ID used to create session:", user_id)
     session_id = create_session(user_id)
 
     label = f"your personal bot" if user_id != GLOBAL_USER else "the global bot"
+    
+    # Validate first_player parameter
+    if first_player not in [HUMAN_PLAYER, AI_PLAYER]:
+        first_player = HUMAN_PLAYER  # Default to human starting
+    
+    starting_turn = first_player
+    
     return StartResponse(
         session_id=session_id,
         board=[None] * 9,
-        message=f"Game started. You are '{HUMAN_PLAYER}', AI is '{AI_PLAYER}'. Learning as {label}.",
+        turn=starting_turn,
+        message=f"Game started. {starting_turn} goes first. You are '{HUMAN_PLAYER}', AI is '{AI_PLAYER}'. Learning as {label}.",
     )
 
 
@@ -290,7 +315,7 @@ async def end_game(body: EndRequest, request: Request):
 async def get_stats(request: Request):
     """Return how many unique board states this user's bot has learned."""
     db      = await get_db(request)
-    user_id = resolve_user_id(request)
+    user_id = await resolve_user_id(request)
     count   = await get_states_count(db, user_id)
     return StatsResponse(user_id=user_id, states_learned=count)
 
@@ -305,13 +330,68 @@ async def reset_qtable(request: Request):
     Permanently delete this user's entire Q-table.
     Guests cannot reset the global bot.
     """
-    user_id = resolve_user_id(request)
+    user_id = await resolve_user_id(request)
     if user_id == GLOBAL_USER:
         raise HTTPException(status_code=403, detail="Guests cannot reset the global bot. Please log in.")
 
     db      = await get_db(request)
     deleted = await reset_user_qtable(db, user_id)
     return {"message": "Q-table cleared.", "states_deleted": deleted}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DELETE /tictactoe/cleanup
+# ─────────────────────────────────────────────────────────────────────────────
+
+@router.delete("/cleanup")
+async def cleanup_sessions(request: Request, max_age: int = Query(default=3600)):
+    """
+    Clean up expired sessions.
+    Query parameter:
+    - max_age: Maximum age in seconds (default: 3600 = 1 hour)
+    """
+    cleaned_count = cleanup_expired_sessions(max_age)
+    return {
+        "message": f"Cleaned up {cleaned_count} expired session(s).",
+        "sessions_cleaned": cleaned_count,
+        "max_age_seconds": max_age
+    }
+
+
+@router.delete("/cleanup/user")
+async def cleanup_user_sessions_endpoint(request: Request):
+    """
+    Clean up all sessions for the current user.
+    This is useful when user leaves the game or logs out.
+    """
+    user_id = await resolve_user_id(request)
+    if user_id == GLOBAL_USER:
+        raise HTTPException(status_code=403, detail="Guest sessions are automatically cleaned up by timeout.")
+    
+    cleaned_count = cleanup_user_sessions(user_id)
+    return {
+        "message": f"Cleaned up {cleaned_count} session(s) for user {user_id}.",
+        "sessions_cleaned": cleaned_count,
+        "user_id": user_id
+    }
+
+
+@router.get("/sessions")
+async def get_session_info(request: Request):
+    """
+    Get information about current active sessions.
+    Useful for monitoring and debugging.
+    """
+    user_id = await resolve_user_id(request)
+    total_sessions = get_session_count()
+    user_sessions = get_user_active_sessions(user_id) if user_id != GLOBAL_USER else []
+    
+    return {
+        "total_active_sessions": total_sessions,
+        "user_sessions": user_sessions,
+        "user_session_count": len(user_sessions),
+        "user_id": user_id
+    }
 
 
 # ─────────────────────────────────────────────────────────────────────────────

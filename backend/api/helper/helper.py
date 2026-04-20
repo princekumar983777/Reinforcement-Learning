@@ -161,3 +161,40 @@ def push_history(session_id: str, state: str, move: int, next_state: str) -> Non
 
 def close_session(session_id: str) -> dict | None:
     return _sessions.pop(session_id, None)
+
+
+def cleanup_expired_sessions(max_age_seconds: int = 3600) -> int:
+    """
+    Remove all sessions older than max_age_seconds.
+    Returns the number of sessions cleaned up.
+    """
+    current_time = time.time()
+    expired_sessions = []
+    
+    for session_id, session_data in _sessions.items():
+        if current_time - session_data["created_at"] > max_age_seconds:
+            expired_sessions.append(session_id)
+    
+    # Remove expired sessions
+    for session_id in expired_sessions:
+        _sessions.pop(session_id, None)
+    
+    return len(expired_sessions)
+
+
+def get_session_count() -> int:
+    """Get the current number of active sessions."""
+    return len(_sessions)
+
+
+def get_user_active_sessions(user_id: str) -> list[str]:
+    """Get all active session IDs for a specific user."""
+    return [sid for sid, data in _sessions.items() if data["user_id"] == user_id]
+
+
+def cleanup_user_sessions(user_id: str) -> int:
+    """Remove all sessions for a specific user. Returns count of removed sessions."""
+    user_sessions = get_user_active_sessions(user_id)
+    for session_id in user_sessions:
+        _sessions.pop(session_id, None)
+    return len(user_sessions)
