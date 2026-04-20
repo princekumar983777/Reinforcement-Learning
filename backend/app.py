@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
-# from contextlib import asynccontextmanager
-# from db.session import connect_to_mongo, disconnect_from_mongo
+from contextlib import asynccontextmanager
+from db.session import connect_to_mongo, disconnect_from_mongo
 # from api.auth import router as auth_router
 # from api.user import router as user_router
 # from api.tictactoe import router as tictactoe_router
@@ -8,20 +8,20 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 # from core.security import verify_token
 
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     # Startup
-#     database = await connect_to_mongo()
-#     app.state.db = database
-#     # Create indexes for Tic Tac Toe collection
-#     from db.tictactoe import ensure_indexes
-#     await ensure_indexes(database)
-#     yield
-#     # Shutdown
-#     await disconnect_from_mongo()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    database = await connect_to_mongo()
+    app.state.db = database
+    # Create indexes for Tic Tac Toe collection
+    from db.tictactoe import ensure_indexes
+    await ensure_indexes(database)
+    yield
+    # Shutdown
+    await disconnect_from_mongo()
 
-# app = FastAPI(title="Game Verse", lifespan=lifespan)
-app = FastAPI(title="Game Verse")
+app = FastAPI(title="Game Verse", lifespan=lifespan)
+# app = FastAPI(title="Game Verse")
 
 
 # Add middleware - CORS must be first
@@ -44,7 +44,7 @@ app.add_middleware(
 # app.include_router(tictactoe_router)
 
 @app.get("/")
-async def root(request):
+async def root():
     return {"message": "Simple VErsion"}
 
 # @app.get("/me")
